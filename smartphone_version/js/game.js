@@ -1,3 +1,6 @@
+import { Canvas } from "./canvas.js";
+
 export function game() {
-    console.log("function game() is called.");
+    // canvas の用意
+    let canvas = new Canvas();
 }
