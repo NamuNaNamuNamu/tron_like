@@ -59,4 +59,21 @@ export class Canvas{
     get_height(){
         return this.canvas.height;
     }
+
+    // 水平方向の中心の x 座標を取得
+    get_horizontal_center() {
+        return this.get_width() * 0.5;
+    }
+
+    // 垂直方向のそれぞれ以下の中心の y 座標を取得
+    // - canvas 全体の中心
+    // - 上のコントロールパネルの中心
+    // - 下のコントロールパネルの中心
+    get_vertical_center() {
+        return {
+            total: this.get_height() * 0.5,
+            upper: this.get_width() * 0.2,
+            lower: this.get_width() * 1.6
+        };
+    }
 }
