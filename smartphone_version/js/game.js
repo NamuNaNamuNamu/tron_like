@@ -1,55 +1,23 @@
 import { Canvas } from "./canvas.js";
 
-export function game() {
-    // 写真の読み込み
-    let imgs = prepare_images();
-
+export async function game() {
     // canvas の用意
     let canvas = new Canvas();
     // ボタンの用意
-    let buttons = make_buttons(canvas, imgs.triangle);
+    let buttons = await make_buttons(canvas);
 
-    // 最後の画像の読み込みが完了したら、ボタンを描画する。これを入れないと画像が描画されない。
-    imgs.triangle.white.right.addEventListener("load", function(){
-        for (let key in buttons.upper) {
-            buttons.upper[key].draw(canvas.context);
-        }
-
-        for (let key in buttons.lower) {
-            buttons.lower[key].draw(canvas.context);
-        }
-    }, false);
-}
-
-function prepare_images(){
-    const BASE_PATH = "./img/";
-    
-    // 画像をロードして、辞書型データ形式で返却
-    return {
-        triangle: {
-            red: {
-                up: generate_img_object(BASE_PATH + "triangle/red/up.png"),
-                down: generate_img_object(BASE_PATH + "triangle/red/down.png"),
-                left: generate_img_object(BASE_PATH + "triangle/red/left.png"),
-                right: generate_img_object(BASE_PATH + "triangle/red/right.png")
-            },
-            white: {
-                up: generate_img_object(BASE_PATH + "triangle/white/up.png"),
-                down: generate_img_object(BASE_PATH + "triangle/white/down.png"),
-                left: generate_img_object(BASE_PATH + "triangle/white/left.png"),
-                right: generate_img_object(BASE_PATH + "triangle/white/right.png")
-            }
-        }
+    // 最後の画像の読み込みが完了したら、ボタンを描画する。
+    // TODO: 描画処理はメインループ中で行うように要修正
+    for (let key in buttons.upper) {
+        buttons.upper[key].draw(canvas.context);
     }
 
-    function generate_img_object(img_path){
-        let img = new Image();
-        img.src = img_path;
-        return img;
+    for (let key in buttons.lower) {
+        buttons.lower[key].draw(canvas.context);
     }
 }
 
-function make_buttons(canvas, triangle_imgs) {
+async function make_buttons(canvas) {
     class Button{
         constructor(x, y, width, height, img){
             this.x = x;             // ボタンの横幅
@@ -80,6 +48,40 @@ function make_buttons(canvas, triangle_imgs) {
         }
     }
 
+    // 必要な画像の Image オブジェクトの用意
+    // 画像を読みこみ終えるまで待つ。
+    async function generate_img_object(path){
+        return new Promise((resolve, reject) => {
+            let img = new Image();
+            img.src = path;
+
+            img.onload = () => resolve(img);
+            img.onerror = () => reject(new Error("画像の読み込み失敗。パス: " + imp_path));
+        });
+    }
+
+    let triangle_imgs;
+    try {
+        const BASE_PATH = "./img/";
+        triangle_imgs = {
+            red: {
+                up: await generate_img_object(BASE_PATH + "triangle/red/up.png"),
+                down: await generate_img_object(BASE_PATH + "triangle/red/down.png"),
+                left: await generate_img_object(BASE_PATH + "triangle/red/left.png"),
+                right: await generate_img_object(BASE_PATH + "triangle/red/right.png")
+            },
+            white: {
+                up: await generate_img_object(BASE_PATH + "triangle/white/up.png"),
+                down: await generate_img_object(BASE_PATH + "triangle/white/down.png"),
+                left: await generate_img_object(BASE_PATH + "triangle/white/left.png"),
+                right: await generate_img_object(BASE_PATH + "triangle/white/right.png")
+            }
+        };
+    } catch (error) {
+        console.error(error);
+    }
+
+    // 読み込み終えたら、ボタンを実際に作成。
     const BUTTON_SIZE = canvas.get_width() * 0.13; // ボタンの一辺の長さ
     let buttons = {
         upper: {
