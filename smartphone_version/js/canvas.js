@@ -3,6 +3,9 @@
 /////////////////
 
 export class Canvas{
+    #buttons
+    #key
+
     constructor(){
         this.canvas = document.getElementById("main_canvas");
         this.context = this.canvas.getContext("2d");
@@ -50,6 +53,58 @@ export class Canvas{
         // コントローラーの背景染め
         this.context.fillStyle = "rgb(160, 160, 180)";
         this.context.fillRect(0, this.get_width() + this.get_width() * controller_ratio, this.get_width(), this.get_width());
+    }
+
+    // 以下の、キャンバスに対するユーザーによる入力を受け取り始める
+    // - タップされた
+    // - スライドされた
+    // - 指が離された
+    start_receiving_input() {
+        this.canvas.addEventListener("touchstart", (event) => {
+            event.preventDefault();
+
+            // canvas の左上角の x, y 座標
+            // 
+            // canvas.getBoundingClientRect() => 現在、スマホ画面で見えている範囲の四角形
+            // window.pageXOffset => 現在、スマホ画面で見えている範囲の左端が、ページの左端から x 軸方向にどれだけずれているか
+            const canvas_top_left = {
+                x: this.canvas.getBoundingClientRect().left + window.pageXOffset,
+                y: this.canvas.getBoundingClientRect().top + window.pageYOffset
+            }
+            
+            // そのときタップされた指全ての canvas 上の x, y 座標を取得する。
+            let touches = new Array(100);
+            for (let i = 0; i < event.changedTouches.length; i++) {
+                touches[i] = {x: 0, y: 0};
+                touches[i].x = event.changedTouches[i].pageX - canvas_top_left.x;
+                touches[i].y = event.changedTouches[i].pageY - canvas_top_left.y;
+            }
+
+            // キーに反映
+            if (this.#buttons.upper.up.is_overlapping(touches[0].x, touches[0].y)) {
+                this.#key.pressed("w");
+            }
+        }, false);
+
+        this.canvas.addEventListener("touchmove", (event) => {
+            event.preventDefault();
+
+            // TODO: ここにスライドされた指の x, y 座標を取得し、キャンバスクラスに格納する処理を書く
+        }, false);
+
+        this.canvas.addEventListener("touchend", (event) => {
+            event.preventDefault();
+
+            // TODO: ここに離された指の x, y 座標を取得し、キャンバスクラスに格納する処理を書く
+        }, false);
+    }
+
+    set_buttons(buttons) {
+        this.#buttons = buttons;
+    }
+
+    set_key(key) {
+        this.#key = key;
     }
 
     get_width(){

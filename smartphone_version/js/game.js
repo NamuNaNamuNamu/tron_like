@@ -1,10 +1,37 @@
 import { Canvas } from "./canvas.js";
+import { Key } from "./key.js";
 
 export async function game() {
     // canvas の用意
     let canvas = new Canvas();
+
     // ボタンの用意
     let buttons = await make_buttons(canvas);
+    canvas.set_buttons(buttons);
+    let key = new Key(buttons);
+    canvas.set_key(key);
+
+    // 実際にタップ等の入力を受け付ける。ボタンやキーに反映。
+    canvas.start_receiving_input();
+
+    // ここはテスト用
+    let interval = setInterval(() => {
+        canvas.initialize();
+
+        canvas.context.font = canvas.get_width() / 15 + "px serif";
+        canvas.context.fillStyle = "rgb(0, 0, 0)";
+        canvas.context.fillText(key.is_w_pressed, canvas.get_width() / 2, canvas.get_height() / 2);
+
+        // 最後の画像の読み込みが完了したら、ボタンを描画する。
+        // TODO: 描画処理はメインループ中で行うように要修正
+        for (let key in buttons.upper) {
+            buttons.upper[key].draw(canvas.context);
+        }
+
+        for (let key in buttons.lower) {
+            buttons.lower[key].draw(canvas.context);
+        }
+    }, 100);
 
     // 最後の画像の読み込みが完了したら、ボタンを描画する。
     // TODO: 描画処理はメインループ中で行うように要修正
@@ -38,12 +65,12 @@ async function make_buttons(canvas) {
             );
         }
 
-        is_clicked(finger_x, finger_y){
-            // ボタンに触れていなければ false
-            if(!(this.x - this.width * 0.5 <= finger_x && finger_x <= this.x + this.width * 0.5)) return false;
-            if(!(this.y - this.height * 0.5 <= finger_y && finger_y <= this.y + this.height * 0.5)) return false;
+        is_overlapping(x, y){
+            // ボタンに重なっていなければ false
+            if(!(this.x - this.width * 0.5 <= x && x <= this.x + this.width * 0.5)) return false;
+            if(!(this.y - this.height * 0.5 <= y && y <= this.y + this.height * 0.5)) return false;
 
-            // 触れていれば true
+            // 重なっていれば true
             return true;
         }
     }
