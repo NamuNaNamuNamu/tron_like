@@ -140,40 +140,29 @@ export class Canvas{
     }
 
     update_key_from_finger() {
-        if (this.#fingers.upper === null) {
+        if (this.#fingers.lower === null) {
             this.#key.released("w");
             this.#key.released("a");
             this.#key.released("s");
             this.#key.released("d");
         } else {
-            if (this.#buttons.upper.up.is_overlapping(this.#fingers.upper.x, this.#fingers.upper.y)) this.#key.pressed("w");
-            if (this.#buttons.upper.left.is_overlapping(this.#fingers.upper.x, this.#fingers.upper.y)) this.#key.pressed("a");
-            if (this.#buttons.upper.down.is_overlapping(this.#fingers.upper.x, this.#fingers.upper.y)) this.#key.pressed("s");
-            if (this.#buttons.upper.right.is_overlapping(this.#fingers.upper.x, this.#fingers.upper.y)) this.#key.pressed("d");
+            if (this.#buttons.lower.up.is_overlapping(this.#fingers.lower.x, this.#fingers.lower.y)) this.#key.pressed("w");
+            if (this.#buttons.lower.left.is_overlapping(this.#fingers.lower.x, this.#fingers.lower.y)) this.#key.pressed("a");
+            if (this.#buttons.lower.down.is_overlapping(this.#fingers.lower.x, this.#fingers.lower.y)) this.#key.pressed("s");
+            if (this.#buttons.lower.right.is_overlapping(this.#fingers.lower.x, this.#fingers.lower.y)) this.#key.pressed("d");
         }
 
-        if (this.#fingers.lower === null) {
+        if (this.#fingers.upper === null) {
             this.#key.released("ArrowUp");
             this.#key.released("ArrowLeft");
             this.#key.released("ArrowDown");
             this.#key.released("ArrowRight");
         } else {
-            if (this.#buttons.lower.up.is_overlapping(this.#fingers.lower.x, this.#fingers.lower.y)) this.#key.pressed("ArrowUp");
-            if (this.#buttons.lower.left.is_overlapping(this.#fingers.lower.x, this.#fingers.lower.y)) this.#key.pressed("ArrowLeft");
-            if (this.#buttons.lower.down.is_overlapping(this.#fingers.lower.x, this.#fingers.lower.y)) this.#key.pressed("ArrowDown");
-            if (this.#buttons.lower.right.is_overlapping(this.#fingers.lower.x, this.#fingers.lower.y)) this.#key.pressed("ArrowRight");
+            if (this.#buttons.upper.up.is_overlapping(this.#fingers.upper.x, this.#fingers.upper.y)) this.#key.pressed("ArrowUp");
+            if (this.#buttons.upper.left.is_overlapping(this.#fingers.upper.x, this.#fingers.upper.y)) this.#key.pressed("ArrowLeft");
+            if (this.#buttons.upper.down.is_overlapping(this.#fingers.upper.x, this.#fingers.upper.y)) this.#key.pressed("ArrowDown");
+            if (this.#buttons.upper.right.is_overlapping(this.#fingers.upper.x, this.#fingers.upper.y)) this.#key.pressed("ArrowRight");
         }
-
-        alert(
-            "w: " + key.is_w_pressed + "\n" +
-            "a: " + key.is_a_pressed + "\n" +
-            "s: " + key.is_s_pressed + "\n" +
-            "d: " + key.is_d_pressed + "\n" +
-            "arrow_up: " + key.is_arrow_up_pressed + "\n" +
-            "arrow_left: " + key.is_arrow_left_pressed + "\n" +
-            "arrow_down: " + key.is_arrow_down_pressed + "\n" +
-            "arrow_right: " + key.is_arrow_right_pressed + "\n"
-        )
     }
 
     game_screen_is_overlapping(x, y) {
@@ -188,7 +177,15 @@ export class Canvas{
     }
 
     update_buttons_state() {
-        // TODO: ボタンを赤色にする処理。戻す処理を追加。
+        if (this.#key.is_w_pressed) {this.#buttons.lower.up.change_color_to_red();} else {this.#buttons.lower.up.change_color_to_white();}
+        if (this.#key.is_a_pressed) {this.#buttons.lower.left.change_color_to_red();} else {this.#buttons.lower.left.change_color_to_white();}
+        if (this.#key.is_s_pressed) {this.#buttons.lower.down.change_color_to_red();} else {this.#buttons.lower.down.change_color_to_white();}
+        if (this.#key.is_d_pressed) {this.#buttons.lower.right.change_color_to_red();} else {this.#buttons.lower.right.change_color_to_white();}
+
+        if (this.#key.is_arrow_up_pressed)    {this.#buttons.upper.up.change_color_to_red();} else {this.#buttons.upper.up.change_color_to_white();}
+        if (this.#key.is_arrow_left_pressed)  {this.#buttons.upper.left.change_color_to_red();} else {this.#buttons.upper.left.change_color_to_white();}
+        if (this.#key.is_arrow_down_pressed)  {this.#buttons.upper.down.change_color_to_red();} else {this.#buttons.upper.down.change_color_to_white();}
+        if (this.#key.is_arrow_right_pressed) {this.#buttons.upper.right.change_color_to_red();} else {this.#buttons.upper.right.change_color_to_white();}
     }
 
     draw_buttons() {

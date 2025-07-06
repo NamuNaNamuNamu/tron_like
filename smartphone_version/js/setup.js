@@ -12,7 +12,7 @@ export async function setup() {
     canvas.set_key(key);
     // 実際にタップ等の入力を受け付ける。ボタンやキーに反映。
     canvas.start_receiving_input();
-
+    console.log(buttons);
     // ゲームをつかさどるオブジェクト
     let game = new Game(canvas, key);
     // ゲームを開始 (タイトル画面を表示)
@@ -21,12 +21,13 @@ export async function setup() {
 
 async function make_buttons(canvas) {
     class Button{
-        constructor(x, y, width, height, img){
+        constructor(x, y, width, height, imgs){
             this.x = x;             // ボタンの横幅
             this.y = y;             // ボタンの縦幅
             this.width = width;     // ボタンの x 座標 (中心)
             this.height = height;   // ボタンの y 座標 (中心)
-            this.img = img;
+            this.imgs = imgs;
+            this.img = this.imgs.white;
         }
 
         // ボタン写真の描画
@@ -48,6 +49,14 @@ async function make_buttons(canvas) {
             // 重なっていれば true
             return true;
         }
+
+        change_color_to_red() {
+            this.img = this.imgs.red;
+        }
+
+        change_color_to_white() {
+            this.img = this.imgs.white;
+        }
     }
 
     // 必要な画像の Image オブジェクトの用意
@@ -66,17 +75,21 @@ async function make_buttons(canvas) {
     try {
         const BASE_PATH = "./img/";
         triangle_imgs = {
-            red: {
-                up: await generate_img_object(BASE_PATH + "triangle/red/up.png"),
-                down: await generate_img_object(BASE_PATH + "triangle/red/down.png"),
-                left: await generate_img_object(BASE_PATH + "triangle/red/left.png"),
-                right: await generate_img_object(BASE_PATH + "triangle/red/right.png")
+            up: {
+                red:   await generate_img_object(BASE_PATH + "triangle/red/up.png"),
+                white: await generate_img_object(BASE_PATH + "triangle/white/up.png")
             },
-            white: {
-                up: await generate_img_object(BASE_PATH + "triangle/white/up.png"),
-                down: await generate_img_object(BASE_PATH + "triangle/white/down.png"),
-                left: await generate_img_object(BASE_PATH + "triangle/white/left.png"),
-                right: await generate_img_object(BASE_PATH + "triangle/white/right.png")
+            down: {
+                red:   await generate_img_object(BASE_PATH + "triangle/red/down.png"),
+                white: await generate_img_object(BASE_PATH + "triangle/white/down.png")
+            },
+            left: {
+                red:   await generate_img_object(BASE_PATH + "triangle/red/left.png"),
+                white: await generate_img_object(BASE_PATH + "triangle/white/left.png")
+            },
+            right: {
+                red:   await generate_img_object(BASE_PATH + "triangle/red/right.png"),
+                white: await generate_img_object(BASE_PATH + "triangle/white/right.png")
             }
         };
     } catch (error) {
@@ -87,16 +100,16 @@ async function make_buttons(canvas) {
     const BUTTON_SIZE = canvas.get_width() * 0.13; // ボタンの一辺の長さ
     let buttons = {
         upper: {
-            up: new Button(canvas.get_horizontal_center(), canvas.get_vertical_center().upper - BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE, triangle_imgs.white.up),
-            down: new Button(canvas.get_horizontal_center(), canvas.get_vertical_center().upper + BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE, triangle_imgs.white.down),
-            left: new Button(canvas.get_horizontal_center() - BUTTON_SIZE, canvas.get_vertical_center().upper, BUTTON_SIZE, BUTTON_SIZE, triangle_imgs.white.left),
-            right: new Button(canvas.get_horizontal_center() + BUTTON_SIZE, canvas.get_vertical_center().upper, BUTTON_SIZE, BUTTON_SIZE, triangle_imgs.white.right),
+            up: new Button(canvas.get_horizontal_center(), canvas.get_vertical_center().upper - BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE, triangle_imgs.up),
+            down: new Button(canvas.get_horizontal_center(), canvas.get_vertical_center().upper + BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE, triangle_imgs.down),
+            left: new Button(canvas.get_horizontal_center() - BUTTON_SIZE, canvas.get_vertical_center().upper, BUTTON_SIZE, BUTTON_SIZE, triangle_imgs.left),
+            right: new Button(canvas.get_horizontal_center() + BUTTON_SIZE, canvas.get_vertical_center().upper, BUTTON_SIZE, BUTTON_SIZE, triangle_imgs.right),
         },
         lower: {
-            up: new Button(canvas.get_horizontal_center(), canvas.get_vertical_center().lower - BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE, triangle_imgs.white.up),
-            down: new Button(canvas.get_horizontal_center(), canvas.get_vertical_center().lower + BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE, triangle_imgs.white.down),
-            left: new Button(canvas.get_horizontal_center() - BUTTON_SIZE, canvas.get_vertical_center().lower, BUTTON_SIZE, BUTTON_SIZE, triangle_imgs.white.left),
-            right: new Button(canvas.get_horizontal_center() + BUTTON_SIZE, canvas.get_vertical_center().lower, BUTTON_SIZE, BUTTON_SIZE, triangle_imgs.white.right),
+            up: new Button(canvas.get_horizontal_center(), canvas.get_vertical_center().lower - BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE, triangle_imgs.up),
+            down: new Button(canvas.get_horizontal_center(), canvas.get_vertical_center().lower + BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE, triangle_imgs.down),
+            left: new Button(canvas.get_horizontal_center() - BUTTON_SIZE, canvas.get_vertical_center().lower, BUTTON_SIZE, BUTTON_SIZE, triangle_imgs.left),
+            right: new Button(canvas.get_horizontal_center() + BUTTON_SIZE, canvas.get_vertical_center().lower, BUTTON_SIZE, BUTTON_SIZE, triangle_imgs.right),
         }
     };
 
