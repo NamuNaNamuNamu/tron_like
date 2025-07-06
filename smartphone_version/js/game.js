@@ -18,9 +18,13 @@ export async function game() {
     let interval = setInterval(() => {
         canvas.initialize();
 
-        canvas.context.font = canvas.get_width() / 15 + "px serif";
+        canvas.context.font = canvas.get_width() / 20 + "px serif";
         canvas.context.fillStyle = "rgb(0, 0, 0)";
-        canvas.context.fillText(key.is_w_pressed, canvas.get_width() / 2, canvas.get_height() / 2);
+
+        canvas.context.fillText(`upper x: ${canvas.get_fingers().upper?.x ?? "null"}`, canvas.get_width() / 2, canvas.get_height() / 16 * 5);
+        canvas.context.fillText(`upper y: ${canvas.get_fingers().upper?.y ?? "null"}`, canvas.get_width() / 2, canvas.get_height() / 16 * 6);
+        canvas.context.fillText(`lower x: ${canvas.get_fingers().lower?.x ?? "null"}`, canvas.get_width() / 2, canvas.get_height() / 16 * 7);
+        canvas.context.fillText(`lower y: ${canvas.get_fingers().lower?.y ?? "null"}`, canvas.get_width() / 2, canvas.get_height() / 16 * 8);
 
         // 最後の画像の読み込みが完了したら、ボタンを描画する。
         // TODO: 描画処理はメインループ中で行うように要修正

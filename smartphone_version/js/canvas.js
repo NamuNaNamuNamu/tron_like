@@ -5,6 +5,11 @@
 export class Canvas{
     #buttons
     #key
+    // 指は画面上部に1本。画面下部に1本のみ存在。置かれている指を代入 (x, y 座標) する。
+    #fingers = {
+        upper: null,
+        lower: null,
+    }
 
     constructor(){
         this.canvas = document.getElementById("main_canvas");
@@ -80,22 +85,44 @@ export class Canvas{
                 touches[i].y = event.changedTouches[i].pageY - canvas_top_left.y;
             }
 
-            // キーに反映
-            if (this.#buttons.upper.up.is_overlapping(touches[0].x, touches[0].y)) {
-                this.#key.pressed("w");
+            for (let touch of touches) {
+                if (touch.y < this.get_height() / 2) {
+                    if (this.#fingers.upper !== null) continue;
+                    this.#fingers.upper = touch;
+                } else {
+                    if (this.#fingers.lower !== null) continue;
+                    this.#fingers.lower = touch;
+                }
             }
-        }, false);
-
-        this.canvas.addEventListener("touchmove", (event) => {
-            event.preventDefault();
-
-            // TODO: ここにスライドされた指の x, y 座標を取得し、キャンバスクラスに格納する処理を書く
         }, false);
 
         this.canvas.addEventListener("touchend", (event) => {
             event.preventDefault();
 
-            // TODO: ここに離された指の x, y 座標を取得し、キャンバスクラスに格納する処理を書く
+            // canvas の左上角の x, y 座標
+            // 
+            // canvas.getBoundingClientRect() => 現在、スマホ画面で見えている範囲の四角形
+            // window.pageXOffset => 現在、スマホ画面で見えている範囲の左端が、ページの左端から x 軸方向にどれだけずれているか
+            const canvas_top_left = {
+                x: this.canvas.getBoundingClientRect().left + window.pageXOffset,
+                y: this.canvas.getBoundingClientRect().top + window.pageYOffset
+            }
+            
+            // そのときタップされた指全ての canvas 上の x, y 座標を取得する。
+            let touches = new Array(100);
+            for (let i = 0; i < event.changedTouches.length; i++) {
+                touches[i] = {x: 0, y: 0};
+                touches[i].x = event.changedTouches[i].pageX - canvas_top_left.x;
+                touches[i].y = event.changedTouches[i].pageY - canvas_top_left.y;
+            }
+
+            for (let touch of touches) {
+                if (touch.y < this.get_height() / 2) {
+                    this.#fingers.upper = null;
+                } else {
+                    this.#fingers.lower = null;
+                }
+            }
         }, false);
     }
 
@@ -105,6 +132,10 @@ export class Canvas{
 
     set_key(key) {
         this.#key = key;
+    }
+
+    get_fingers() {
+        return this.#fingers;
     }
 
     get_width(){
