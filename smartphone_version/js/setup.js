@@ -1,51 +1,22 @@
 import { Canvas } from "./canvas.js";
 import { Key } from "./key.js";
+import { Game } from "./game.js";
 
 export async function setup() {
     // canvas の用意
     let canvas = new Canvas();
-
     // ボタンの用意
     let buttons = await make_buttons(canvas);
     canvas.set_buttons(buttons);
     let key = new Key(buttons);
     canvas.set_key(key);
-
     // 実際にタップ等の入力を受け付ける。ボタンやキーに反映。
     canvas.start_receiving_input();
 
-    // ここはテスト用
-    let interval = setInterval(() => {
-        canvas.initialize();
-
-        canvas.context.font = canvas.get_width() / 20 + "px serif";
-        canvas.context.fillStyle = "rgb(0, 0, 0)";
-
-        canvas.context.fillText(`upper x: ${canvas.get_fingers().upper?.x ?? "null"}`, canvas.get_width() / 2, canvas.get_height() / 16 * 5);
-        canvas.context.fillText(`upper y: ${canvas.get_fingers().upper?.y ?? "null"}`, canvas.get_width() / 2, canvas.get_height() / 16 * 6);
-        canvas.context.fillText(`lower x: ${canvas.get_fingers().lower?.x ?? "null"}`, canvas.get_width() / 2, canvas.get_height() / 16 * 7);
-        canvas.context.fillText(`lower y: ${canvas.get_fingers().lower?.y ?? "null"}`, canvas.get_width() / 2, canvas.get_height() / 16 * 8);
-
-        // 最後の画像の読み込みが完了したら、ボタンを描画する。
-        // TODO: 描画処理はメインループ中で行うように要修正
-        for (let key in buttons.upper) {
-            buttons.upper[key].draw(canvas.context);
-        }
-
-        for (let key in buttons.lower) {
-            buttons.lower[key].draw(canvas.context);
-        }
-    }, 100);
-
-    // 最後の画像の読み込みが完了したら、ボタンを描画する。
-    // TODO: 描画処理はメインループ中で行うように要修正
-    for (let key in buttons.upper) {
-        buttons.upper[key].draw(canvas.context);
-    }
-
-    for (let key in buttons.lower) {
-        buttons.lower[key].draw(canvas.context);
-    }
+    // ゲームをつかさどるオブジェクト
+    let game = new Game(canvas, key);
+    // ゲームを開始 (タイトル画面を表示)
+    game.start();
 }
 
 async function make_buttons(canvas) {

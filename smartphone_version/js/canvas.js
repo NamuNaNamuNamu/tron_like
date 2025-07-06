@@ -83,17 +83,22 @@ export class Canvas{
                 touches[i] = {x: 0, y: 0};
                 touches[i].x = event.changedTouches[i].pageX - canvas_top_left.x;
                 touches[i].y = event.changedTouches[i].pageY - canvas_top_left.y;
-            }
 
-            for (let touch of touches) {
-                if (touch.y < this.get_height() / 2) {
+                if (touches[i].y < this.get_height() / 2) {
                     if (this.#fingers.upper !== null) continue;
-                    this.#fingers.upper = touch;
+                    this.#fingers.upper = touches[i];
                 } else {
                     if (this.#fingers.lower !== null) continue;
-                    this.#fingers.lower = touch;
+                    this.#fingers.lower = touches[i];
+                }
+
+                // ゲーム画面タップに対する反応
+                if (this.game_screen_is_overlapping(touches[i].x, touches[i].y)) {
+                    this.#key.pressed(" ");
                 }
             }
+
+            this.update_key_from_finger();
         }, false);
 
         this.canvas.addEventListener("touchend", (event) => {
@@ -114,15 +119,15 @@ export class Canvas{
                 touches[i] = {x: 0, y: 0};
                 touches[i].x = event.changedTouches[i].pageX - canvas_top_left.x;
                 touches[i].y = event.changedTouches[i].pageY - canvas_top_left.y;
-            }
 
-            for (let touch of touches) {
-                if (touch.y < this.get_height() / 2) {
+                if (touches[i].y < this.get_height() / 2) {
                     this.#fingers.upper = null;
                 } else {
                     this.#fingers.lower = null;
                 }
             }
+
+            this.update_key_from_finger();
         }, false);
     }
 
@@ -132,6 +137,68 @@ export class Canvas{
 
     set_key(key) {
         this.#key = key;
+    }
+
+    update_key_from_finger() {
+        if (this.#fingers.upper === null) {
+            this.#key.released("w");
+            this.#key.released("a");
+            this.#key.released("s");
+            this.#key.released("d");
+        } else {
+            if (this.#buttons.upper.up.is_overlapping(this.#fingers.upper.x, this.#fingers.upper.y)) this.#key.pressed("w");
+            if (this.#buttons.upper.left.is_overlapping(this.#fingers.upper.x, this.#fingers.upper.y)) this.#key.pressed("a");
+            if (this.#buttons.upper.down.is_overlapping(this.#fingers.upper.x, this.#fingers.upper.y)) this.#key.pressed("s");
+            if (this.#buttons.upper.right.is_overlapping(this.#fingers.upper.x, this.#fingers.upper.y)) this.#key.pressed("d");
+        }
+
+        if (this.#fingers.lower === null) {
+            this.#key.released("ArrowUp");
+            this.#key.released("ArrowLeft");
+            this.#key.released("ArrowDown");
+            this.#key.released("ArrowRight");
+        } else {
+            if (this.#buttons.lower.up.is_overlapping(this.#fingers.lower.x, this.#fingers.lower.y)) this.#key.pressed("ArrowUp");
+            if (this.#buttons.lower.left.is_overlapping(this.#fingers.lower.x, this.#fingers.lower.y)) this.#key.pressed("ArrowLeft");
+            if (this.#buttons.lower.down.is_overlapping(this.#fingers.lower.x, this.#fingers.lower.y)) this.#key.pressed("ArrowDown");
+            if (this.#buttons.lower.right.is_overlapping(this.#fingers.lower.x, this.#fingers.lower.y)) this.#key.pressed("ArrowRight");
+        }
+
+        alert(
+            "w: " + key.is_w_pressed + "\n" +
+            "a: " + key.is_a_pressed + "\n" +
+            "s: " + key.is_s_pressed + "\n" +
+            "d: " + key.is_d_pressed + "\n" +
+            "arrow_up: " + key.is_arrow_up_pressed + "\n" +
+            "arrow_left: " + key.is_arrow_left_pressed + "\n" +
+            "arrow_down: " + key.is_arrow_down_pressed + "\n" +
+            "arrow_right: " + key.is_arrow_right_pressed + "\n"
+        )
+    }
+
+    game_screen_is_overlapping(x, y) {
+        const controller_ratio = 0.4; // 横幅を 1 としたときの controller 部分の縦幅
+
+        // ボタンに重なっていなければ false
+        if(!(0 < x && x < this.get_width())) return false;
+        if(!(this.get_width() * controller_ratio < y && y < this.get_width() * controller_ratio + this.get_width())) return false;
+
+        // 重なっていれば true
+        return true;
+    }
+
+    update_buttons_state() {
+        // TODO: ボタンを赤色にする処理。戻す処理を追加。
+    }
+
+    draw_buttons() {
+        for (let key in this.#buttons.upper) {
+            this.#buttons.upper[key].draw(this.context);
+        }
+    
+        for (let key in this.#buttons.lower) {
+            this.#buttons.lower[key].draw(this.context);
+        }
     }
 
     get_fingers() {
