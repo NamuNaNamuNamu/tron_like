@@ -1,7 +1,7 @@
 import { Canvas } from "./canvas.js";
 import { Key } from "./key.js";
 
-export async function game() {
+export async function setup() {
     // canvas の用意
     let canvas = new Canvas();
 
