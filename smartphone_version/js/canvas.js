@@ -226,4 +226,65 @@ export class Canvas{
             lower: this.get_width() * 1.6
         };
     }
+
+    // 押したらボタンを押したことになる canvas の範囲
+    // TODO: 名前をどうにかしたい。
+    get_controller_area() {
+        const controller_ratio = 0.4; // 横幅を 1 としたときの controller 部分の縦幅
+
+        return {
+            upper: {
+                up: {
+                    x: this.get_width() * 0,
+                    y: this.get_width() * 0,
+                    width: this.get_width() * 1.0,
+                    height: this.get_width() * controller_ratio / 3
+                },
+                down: {
+                    x: this.get_width() * 0,
+                    y: this.get_width() * controller_ratio * (2 / 3),
+                    width: this.get_width() * 1.0,
+                    height: this.get_width() * controller_ratio / 3
+                },
+                left: {
+                    x: this.get_width() * 0,
+                    y: this.get_width() * controller_ratio * (1 / 3),
+                    width: this.get_width() * 0.5,
+                    height: this.get_width() * controller_ratio / 3
+                },
+                right: {
+                    x: this.get_width() * 0.5,
+                    y: this.get_width() * controller_ratio * (1 / 3),
+                    width: this.get_width() * 0.5,
+                    height: this.get_width() * controller_ratio / 3
+                }
+            },
+            lower: {
+                up: {
+                    x: this.get_width() * 0,
+                    y: this.get_width() * (1.0 + controller_ratio),
+                    width: this.get_width() * 1.0,
+                    height: this.get_width() * controller_ratio / 3
+                },
+                down: {
+                    x: this.get_width() * 0,
+                    y: this.get_width() * (1.0 + controller_ratio + controller_ratio * (2 / 3)),
+                    width: this.get_width() * 1.0,
+                    height: this.get_width() * controller_ratio / 3
+                },
+                left: {
+                    x: this.get_width() * 0,
+                    y: this.get_width() * (1.0 + controller_ratio + controller_ratio * (1 / 3)),
+                    width: this.get_width() * 0.5,
+                    height: this.get_width() * controller_ratio / 3
+                },
+                right: {
+                    x: this.get_width() * 0.5,
+                    y: this.get_width() * (1.0 + controller_ratio + controller_ratio * (1 / 3)),
+                    width: this.get_width() * 0.5,
+                    height: this.get_width() * controller_ratio / 3
+                }
+            }
+        };
+    }
 }
