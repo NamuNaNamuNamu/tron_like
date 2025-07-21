@@ -2,6 +2,8 @@
 // canvasクラス //
 /////////////////
 
+import { is_overlapping } from "./utils/is_overlapping.js";
+
 export class Canvas{
     #buttons
     #key
@@ -146,10 +148,10 @@ export class Canvas{
             this.#key.released("s");
             this.#key.released("d");
         } else {
-            if (this.#buttons.lower.up.is_overlapping(this.#fingers.lower.x, this.#fingers.lower.y)) this.#key.pressed("w");
-            if (this.#buttons.lower.left.is_overlapping(this.#fingers.lower.x, this.#fingers.lower.y)) this.#key.pressed("a");
-            if (this.#buttons.lower.down.is_overlapping(this.#fingers.lower.x, this.#fingers.lower.y)) this.#key.pressed("s");
-            if (this.#buttons.lower.right.is_overlapping(this.#fingers.lower.x, this.#fingers.lower.y)) this.#key.pressed("d");
+            if (is_overlapping({x: this.#fingers.lower.x, y: this.#fingers.lower.y, width: 0, height: 0}, this.get_controller_hit_box().lower.up)) this.#key.pressed("w");
+            if (is_overlapping({x: this.#fingers.lower.x, y: this.#fingers.lower.y, width: 0, height: 0}, this.get_controller_hit_box().lower.left)) this.#key.pressed("a");
+            if (is_overlapping({x: this.#fingers.lower.x, y: this.#fingers.lower.y, width: 0, height: 0}, this.get_controller_hit_box().lower.down)) this.#key.pressed("s");
+            if (is_overlapping({x: this.#fingers.lower.x, y: this.#fingers.lower.y, width: 0, height: 0}, this.get_controller_hit_box().lower.right)) this.#key.pressed("d");
         }
 
         if (this.#fingers.upper === null) {
@@ -158,10 +160,10 @@ export class Canvas{
             this.#key.released("ArrowDown");
             this.#key.released("ArrowRight");
         } else {
-            if (this.#buttons.upper.up.is_overlapping(this.#fingers.upper.x, this.#fingers.upper.y)) this.#key.pressed("ArrowUp");
-            if (this.#buttons.upper.left.is_overlapping(this.#fingers.upper.x, this.#fingers.upper.y)) this.#key.pressed("ArrowLeft");
-            if (this.#buttons.upper.down.is_overlapping(this.#fingers.upper.x, this.#fingers.upper.y)) this.#key.pressed("ArrowDown");
-            if (this.#buttons.upper.right.is_overlapping(this.#fingers.upper.x, this.#fingers.upper.y)) this.#key.pressed("ArrowRight");
+            if (is_overlapping({x: this.#fingers.upper.x, y: this.#fingers.upper.y, width: 0, height: 0}, this.get_controller_hit_box().upper.up)) this.#key.pressed("ArrowUp");
+            if (is_overlapping({x: this.#fingers.upper.x, y: this.#fingers.upper.y, width: 0, height: 0}, this.get_controller_hit_box().upper.left)) this.#key.pressed("ArrowLeft");
+            if (is_overlapping({x: this.#fingers.upper.x, y: this.#fingers.upper.y, width: 0, height: 0}, this.get_controller_hit_box().upper.down)) this.#key.pressed("ArrowDown");
+            if (is_overlapping({x: this.#fingers.upper.x, y: this.#fingers.upper.y, width: 0, height: 0}, this.get_controller_hit_box().upper.right)) this.#key.pressed("ArrowRight");
         }
     }
 
@@ -229,60 +231,64 @@ export class Canvas{
 
     // 押したらボタンを押したことになる canvas の範囲
     // TODO: 名前をどうにかしたい。
-    get_controller_area() {
+    get_controller_hit_box() {
         const controller_ratio = 0.4; // 横幅を 1 としたときの controller 部分の縦幅
+        const up_down_width = this.get_width() * 1.0;
+        const left_right_width = this.get_width() * 0.5;
+        const height = this.get_width() * controller_ratio / 3;
+        const adjustment = this.get_width() * 0.001; // 左右のボタンが重ならないようにするための補正値
 
         return {
             upper: {
                 up: {
-                    x: this.get_width() * 0,
-                    y: this.get_width() * 0,
-                    width: this.get_width() * 1.0,
-                    height: this.get_width() * controller_ratio / 3
+                    x: this.get_width() * 0 + up_down_width * 0.5,
+                    y: this.get_width() * 0 + height * 0.5,
+                    width: up_down_width,
+                    height: height
                 },
                 down: {
-                    x: this.get_width() * 0,
-                    y: this.get_width() * controller_ratio * (2 / 3),
-                    width: this.get_width() * 1.0,
-                    height: this.get_width() * controller_ratio / 3
+                    x: this.get_width() * 0 + up_down_width * 0.5,
+                    y: this.get_width() * controller_ratio * (2 / 3) + height * 0.5,
+                    width: up_down_width,
+                    height: height
                 },
                 left: {
-                    x: this.get_width() * 0,
-                    y: this.get_width() * controller_ratio * (1 / 3),
-                    width: this.get_width() * 0.5,
-                    height: this.get_width() * controller_ratio / 3
+                    x: this.get_width() * 0 + left_right_width * 0.5,
+                    y: this.get_width() * controller_ratio * (1 / 3) + height * 0.5,
+                    width: left_right_width - adjustment,
+                    height: height
                 },
                 right: {
-                    x: this.get_width() * 0.5,
-                    y: this.get_width() * controller_ratio * (1 / 3),
-                    width: this.get_width() * 0.5,
-                    height: this.get_width() * controller_ratio / 3
+                    x: this.get_width() * 0.5 + left_right_width * 0.5,
+                    y: this.get_width() * controller_ratio * (1 / 3) + height * 0.5,
+                    width: left_right_width - adjustment,
+                    height: height
                 }
             },
             lower: {
                 up: {
-                    x: this.get_width() * 0,
-                    y: this.get_width() * (1.0 + controller_ratio),
-                    width: this.get_width() * 1.0,
-                    height: this.get_width() * controller_ratio / 3
+                    x: this.get_width() * 0 + up_down_width * 0.5,
+                    y: this.get_width() * (1.0 + controller_ratio) + height * 0.5,
+                    width: up_down_width,
+                    height: height
                 },
                 down: {
-                    x: this.get_width() * 0,
-                    y: this.get_width() * (1.0 + controller_ratio + controller_ratio * (2 / 3)),
-                    width: this.get_width() * 1.0,
-                    height: this.get_width() * controller_ratio / 3
+                    x: this.get_width() * 0 + up_down_width * 0.5,
+                    y: this.get_width() * (1.0 + controller_ratio + controller_ratio * (2 / 3)) + height * 0.5,
+                    width: up_down_width,
+                    height: height
                 },
                 left: {
-                    x: this.get_width() * 0,
-                    y: this.get_width() * (1.0 + controller_ratio + controller_ratio * (1 / 3)),
-                    width: this.get_width() * 0.5,
-                    height: this.get_width() * controller_ratio / 3
+                    x: this.get_width() * 0 + left_right_width * 0.5,
+                    y: this.get_width() * (1.0 + controller_ratio + controller_ratio * (1 / 3)) + height * 0.5,
+                    width: left_right_width - adjustment,
+                    height: height
                 },
                 right: {
-                    x: this.get_width() * 0.5,
-                    y: this.get_width() * (1.0 + controller_ratio + controller_ratio * (1 / 3)),
-                    width: this.get_width() * 0.5,
-                    height: this.get_width() * controller_ratio / 3
+                    x: this.get_width() * 0.5 + left_right_width * 0.5,
+                    y: this.get_width() * (1.0 + controller_ratio + controller_ratio * (1 / 3)) + height * 0.5,
+                    width: left_right_width - adjustment,
+                    height: height
                 }
             }
         };
