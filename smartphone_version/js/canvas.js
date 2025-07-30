@@ -3,6 +3,7 @@
 /////////////////
 
 import { is_overlapping } from "./utils/is_overlapping.js";
+import { ScreenSize } from "./screen/ScreenSize.js";
 
 export class Canvas{
     #buttons
@@ -20,25 +21,13 @@ export class Canvas{
     }
 
     // キャンバスのリサイズ
-    // 画面めいっぱいに以下のサイズ比の canvas を描画しなおす
-    // 全体として、縦に長い長方形画面。縦 : 横 = 1.8 : 1
-    // - ゲーム画面が正方形 (1 : 1)
-    // - その上下にコントロールパネル (0.4 : 1) が 1 つずつ。
+    // 画面めいっぱいに canvas を描画しなおす
     resize(){
-        const aspect_ratio = 1.8; // 横幅を 1 としたときの縦幅
-        const ADJUSTMENT = 0.96;
+        const screen_size = ScreenSize.get_size_to_fit_window();
 
-        // 縦にめいっぱい
-        if (document.documentElement.clientWidth * aspect_ratio  > document.documentElement.clientHeight){
-            this.canvas.width = document.documentElement.clientHeight / aspect_ratio * ADJUSTMENT;
-            this.canvas.height = document.documentElement.clientHeight * ADJUSTMENT;
-        }
-        // 横にめいっぱい
-        else {
-            this.canvas.width = document.documentElement.clientWidth * ADJUSTMENT;
-            this.canvas.height = document.documentElement.clientWidth * aspect_ratio * ADJUSTMENT;
-        }
-        
+        this.canvas.width = screen_size.width;
+        this.canvas.height = screen_size.height;
+
         this.initialize();
     }
 
